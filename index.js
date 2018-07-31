@@ -1,10 +1,15 @@
 const Discord = require("discord.js");
+const DiscordRSS = require('discord.rss')
 const rp = require("request-promise");
 const moment = require("moment-timezone");
 require('dotenv').config()
 
 const client = new Discord.Client();
+const drss = new DiscordRSS.Client({ database: { uri: './sources' } });
+
 const crypto = require("./resources/digital_currency_list.json");
+
+var port = process.env.PORT || 3000;
 
 client.on("ready", () => {
   console.log("Bot has started");
@@ -92,3 +97,4 @@ client.on("message", async message => {
 });
 
 client.login(process.env.TOKEN);
+drss.login(client)
