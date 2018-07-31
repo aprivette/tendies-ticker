@@ -1,9 +1,9 @@
 const Discord = require("discord.js");
 const rp = require("request-promise");
 const moment = require("moment-timezone");
+require('dotenv').config()
 
 const client = new Discord.Client();
-const config = require("./config.json");
 const crypto = require("./resources/digital_currency_list.json");
 
 client.on("ready", () => {
@@ -12,14 +12,14 @@ client.on("ready", () => {
 
 client.on("message", async message => {
   if(message.author.bot) return;
-  if(message.content.indexOf(config.prefix) !== 0) return;
+  if(message.content.indexOf(process.env.PREFIX) !== 0) return;
 
-  const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
+  const args = message.content.slice(process.env.PREFIX.length).trim().split(/ +/g);
   const command = args.shift().toUpperCase();
 
   var params = {
     symbol: command,
-    apikey: config.alpha_vantage_key
+    apikey: process.env.ALPHA_VANTAGE_KEY
   }
 
   if (crypto.includes(command)) {
@@ -91,4 +91,4 @@ client.on("message", async message => {
   }
 });
 
-client.login(config.token);
+client.login(process.env.TOKEN);

@@ -4,15 +4,6 @@ A really simple and sloppy Discord bot for checking live price data on stocks an
 
 To use it you'll need an API key from Alpha Vantage which you can find [here](https://www.alphavantage.co/support/#api-key).
 
-1. Create a config.json file with the following contents.
-
-```
-{
-  "token": "ABCDEFG",
-  "prefix": "$",
-  "alpha_vantage_key": "1234567890"
-}
-```
-
-2. `node index.js`
+1. Copy the .env.example into .env and set the variables.
+2. Run `node index.js`.
 3. Hook it up to your discord channel.

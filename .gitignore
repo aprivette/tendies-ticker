@@ -4,5 +4,5 @@ node_modules
 # logs
 npm-debug.log
 
-# config
-config.json
+# env
+.env
