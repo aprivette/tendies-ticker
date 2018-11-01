@@ -23,20 +23,21 @@ client.on("message", async message => {
   const command = args.shift().toUpperCase();
 
   var params = {
-    symbol: command,
     apikey: process.env.ALPHA_VANTAGE_KEY
-  }
+  };
 
   if (crypto.includes(command)) {
     var is_crypto = true;
     var url_prefix = "https://www.cryptocompare.com/coins/";
 
-    params.function = "DIGITAL_CURRENCY_INTRADAY";
-    params.market = "USD";
+    params.function = "CURRENCY_EXCHANGE_RATE";
+    params.from_currency = command;
+    params.to_currency = "USD";
   } else {
     var is_crypto = false;
     var url_prefix = "https://www.marketwatch.com/investing/stock/";
 
+    params.symbol = command;
     params.function = "TIME_SERIES_INTRADAY";
     params.interval = "1min";
   }
@@ -58,7 +59,7 @@ client.on("message", async message => {
     var latest_keys = Object.keys(latest);
 
     if (is_crypto === true) {
-      var close_key = latest_keys[0];
+      var close_key = latest_keys[4];
       var tzAdjusted = moment.tz(latest_key, "UTC");
       tzAdjusted.tz("America/New_York");
     } else {
