@@ -54,10 +54,7 @@ client.on("message", async message => {
       var results_key = body_keys[0];
       var results = body_parsed[results_key];
 
-      var latest_key = Object.keys(results)[0];
-      var latest = results[latest_key];
-
-      var close = latest['5. Exchange Rate'];
+      var close = results['5. Exchange Rate'];
       var tzAdjusted = moment.tz(latest['6. Last Refreshed'], "UTC");
       tzAdjusted.tz("America/New_York");
     } else {
