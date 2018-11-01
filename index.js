@@ -57,8 +57,7 @@ client.on("message", async message => {
       var latest_key = Object.keys(results)[0];
       var latest = results[latest_key];
 
-      var latest_keys = Object.keys(latest);
-      var close_key = latest_keys[4];
+      var close = latest['5. Exchange Rate'];
       var tzAdjusted = moment.tz(latest['6. Last Refreshed'], "UTC");
       tzAdjusted.tz("America/New_York");
     } else {
@@ -70,10 +69,9 @@ client.on("message", async message => {
 
       var latest_keys = Object.keys(latest);
       var close_key = latest_keys[3];
+      var close = latest[close_key];
       var tzAdjusted = moment.tz(latest_key, "America/New_York");
     }
-
-    var close = latest[close_key];
 
     var symbol_lower = command.toLowerCase();
 
