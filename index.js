@@ -50,19 +50,25 @@ client.on("message", async message => {
       return;
     }
 
-    var results_key = body_keys[1];
-    var results = body_parsed[results_key];
-
-    var latest_key = Object.keys(results)[0];
-    var latest = results[latest_key];
-
-    var latest_keys = Object.keys(latest);
-
     if (is_crypto === true) {
+      var results_key = body_keys[0];
+      var results = body_parsed[results_key];
+
+      var latest_key = Object.keys(results)[0];
+      var latest = results[latest_key];
+
+      var latest_keys = Object.keys(latest);
       var close_key = latest_keys[4];
       var tzAdjusted = moment.tz(latest_key, "UTC");
       tzAdjusted.tz("America/New_York");
     } else {
+      var results_key = body_keys[1];
+      var results = body_parsed[results_key];
+
+      var latest_key = Object.keys(results)[0];
+      var latest = results[latest_key];
+
+      var latest_keys = Object.keys(latest);
       var close_key = latest_keys[3];
       var tzAdjusted = moment.tz(latest_key, "America/New_York");
     }
