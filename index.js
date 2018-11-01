@@ -59,7 +59,7 @@ client.on("message", async message => {
 
       var latest_keys = Object.keys(latest);
       var close_key = latest_keys[4];
-      var tzAdjusted = moment.tz(latest_key, "UTC");
+      var tzAdjusted = moment.tz(latest['6. Last Refreshed'], "UTC");
       tzAdjusted.tz("America/New_York");
     } else {
       var results_key = body_keys[1];
