@@ -38,8 +38,8 @@ client.on("message", async message => {
     var url_prefix = "https://www.marketwatch.com/investing/stock/";
 
     params.symbol = command;
-    params.function = "TIME_SERIES_INTRADAY";
-    params.interval = "1min";
+    params.function = "GLOBAL_QUOTE";
+    params.adjusted = "false";
   }
 
   var request = rp({uri: "https://www.alphavantage.co/query", qs: params}).then(body => {
@@ -58,16 +58,11 @@ client.on("message", async message => {
       var tzAdjusted = moment.tz(results['6. Last Refreshed'], "UTC");
       tzAdjusted.tz("America/New_York");
     } else {
-      var results_key = body_keys[1];
+      var results_key = body_keys[0];
       var results = body_parsed[results_key];
 
-      var latest_key = Object.keys(results)[0];
-      var latest = results[latest_key];
-
-      var latest_keys = Object.keys(latest);
-      var close_key = latest_keys[3];
-      var close = latest[close_key];
-      var tzAdjusted = moment.tz(latest_key, "America/New_York");
+      var close = results["05. price"];
+      var tzAdjusted = moment();
     }
 
     var symbol_lower = command.toLowerCase();
@@ -99,4 +94,4 @@ client.on("message", async message => {
 });
 
 client.login(process.env.TOKEN);
-drss.login(client)
+drss.login(client);
