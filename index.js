@@ -39,7 +39,6 @@ client.on("message", async message => {
 
     params.symbol = command;
     params.function = "GLOBAL_QUOTE";
-    params.adjusted = "false";
   }
 
   var request = rp({uri: "https://www.alphavantage.co/query", qs: params}).then(body => {
