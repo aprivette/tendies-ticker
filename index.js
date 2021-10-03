@@ -1,96 +1,102 @@
-const Discord = require("discord.js");
-const DiscordRSS = require('discord.rss')
-const rp = require("request-promise");
-const moment = require("moment-timezone");
-require('dotenv').config()
+import Discord from 'discord.js';
+import fetch from 'node-fetch';
 
-const client = new Discord.Client();
-const drss = new DiscordRSS.Client({ database: { uri: './sources' } });
+const client = new Discord.Client({ intents: [Discord.Intents.FLAGS.GUILDS, Discord.Intents.FLAGS.GUILD_MESSAGES] });
 
-const crypto = require("./resources/digital_currency_list.json");
+const port = process.env.PORT || 3000;
 
-var port = process.env.PORT || 3000;
-
-client.on("ready", () => {
-  console.log("Bot has started");
+client.on('ready', () => {
+  console.log('Bot has started');
 });
 
-client.on("message", async message => {
+client.on('messageCreate', async message => {
   if(message.author.bot) return;
   if(message.content.indexOf(process.env.PREFIX) !== 0) return;
 
   const args = message.content.slice(process.env.PREFIX.length).trim().split(/ +/g);
   const command = args.shift().toUpperCase();
+  
+  let tickerType;
+  
+  if (message.content.includes('crypto')) tickerType = 'crypto';
+  if (message.content.includes('stock')) tickerType = 'stock';
+  
+  let out;
+  
+  if (tickerType !== 'crypto' && (tickerType === 'stock' || typeof tickerType === 'undefined')) {
+    const alphaVantageParams = new URLSearchParams({
+      apikey: process.env.ALPHA_VANTAGE_KEY,
+      symbol: command,
+      'function': 'GLOBAL_QUOTE',
+      adjusted: 'false',
+    });
+    
+    const res = await fetch(`https://www.alphavantage.co/query?${alphaVantageParams.toString()}`)
+    
+    if (res.ok) {
+      const data = await res.json();
+      const stock = data['Global Quote'];
 
-  var params = {
-    apikey: process.env.ALPHA_VANTAGE_KEY
-  };
-
-  if (crypto.includes(command)) {
-    var is_crypto = true;
-    var url_prefix = "https://www.cryptocompare.com/coins/";
-
-    params.function = "CURRENCY_EXCHANGE_RATE";
-    params.from_currency = command;
-    params.to_currency = "USD";
-  } else {
-    var is_crypto = false;
-    var url_prefix = "https://www.marketwatch.com/investing/stock/";
-
-    params.symbol = command;
-    params.function = "GLOBAL_QUOTE";
-  }
-
-  var request = rp({uri: "https://www.alphavantage.co/query", qs: params}).then(body => {
-    var body_parsed = JSON.parse(body);
-    var body_keys = Object.keys(body_parsed);
-
-    if (body_keys[0] === 'Error Message') {
-      return;
-    }
-
-    if (is_crypto === true) {
-      var results_key = body_keys[0];
-      var results = body_parsed[results_key];
-
-      var close = results['5. Exchange Rate'];
-      var tzAdjusted = moment.tz(results['6. Last Refreshed'], "UTC");
-      tzAdjusted.tz("America/New_York");
-    } else {
-      var results_key = body_keys[0];
-      var results = body_parsed[results_key];
-
-      var close = results["05. price"];
-      var tzAdjusted = moment();
-    }
-
-    var symbol_lower = command.toLowerCase();
-
-    var message = {
-      embed: {
-        title: `${command}`,
-        url: `${url_prefix}${symbol_lower}`,
-        fields: [{
-            name: `$${close}`,
-            value: 'Latest price from Alpha Vantage'
-          }
-        ],
-        timestamp: tzAdjusted
+      if (Object.entries(stock).length !== 0) {
+        const dateTime = new Date();
+        const dtString = dateTime.toLocaleString('en-US', {
+          dateStyle: 'long',
+          timeStyle: 'short',
+        });
+        
+        out = {
+          embeds: [{
+            title: `${stock['01. symbol']} (Stock)`,
+            url: `https://www.marketwatch.com/investing/stock/${stock['01. symbol'].toLowerCase()}/`,
+            fields: [{
+              name: `Latest price from AlphaVantage as of ${dtString}.`,
+              value: '$' + stock['05. price'],
+            }],
+          }],
+        };
       }
     }
+  }
+  
+  if (tickerType === 'crypto' || typeof out === 'undefined') {
+    const coinMarketCapQuery = new URLSearchParams({
+      'symbol': command,
+    });
+    
+    const res = await fetch(`https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?${coinMarketCapQuery.toString()}`, {
+      headers: {
+        'X-CMC_PRO_API_KEY': process.env.COINMARKETCAP_KEY,
+      },
+    });
+    
+    if (res.ok) {
+      const data = await res.json();
+      
+      for (const i in data.data) {
+        const coin = data.data[i];
+        const dateTime = new Date(coin.last_updated);
+        const dtString = dateTime.toLocaleString('en-US', {
+          dateStyle: 'long',
+          timeStyle: 'short',
+        });
+        
+        out = {
+          embeds: [{
+            title: `${coin.name} (Crypto)`,
+            url: `https://coinmarketcap.com/currencies/${coin.slug}/`,
+            fields: [{
+              name: `Latest price from CoinMarketCap as of ${dtString}.`,
+              value: '$' + (Math.round(coin.quote.USD.price * 40) / 40).toString(),
+            }],
+          }],
+        };
+      }
+    }
+  }
 
-    return message;
-  }).catch(error => {
-    console.log(error);
-    return "Error! Could not retrieve symbol data.";
-  });
-
-  var out = await request;
-
-  if (out) {
+  if (typeof out !== 'undefined') {
     const m = await message.channel.send(out);
   }
 });
 
 client.login(process.env.TOKEN);
-drss.login(client);

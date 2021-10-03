@@ -1,15 +1,17 @@
 {
   "name": "tendies-ticker",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A discord bot for displaying stock and crypto price data",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node -r dotenv/config index.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/aprivette/tendies-ticker.git"
   },
+  "type": "module",
   "keywords": [
     "stock",
     "crypto",
@@ -23,11 +25,8 @@
   },
   "homepage": "https://github.com/aprivette/tendies-ticker#readme",
   "dependencies": {
-    "discord.js": "^11.3.2",
-    "discord.rss": "^3.0.0",
-    "dotenv": "^6.0.0",
-    "moment-timezone": "^0.5.21",
-    "request": "^2.87.0",
-    "request-promise": "^4.2.2"
+    "discord.js": "^13.1.0",
+    "dotenv": "^10.0.0",
+    "node-fetch": "^3.0.0"
   }
 }
