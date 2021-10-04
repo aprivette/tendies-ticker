@@ -44,13 +44,17 @@ client.on('messageCreate', async message => {
           timeStyle: 'short',
         });
         
+        const price = stock['05. price'];
+        let change = stock['10. change percent'];
+        if (change.substring(0, 1) !== '-') change = `+${change}`;
+        
         out = {
           embeds: [{
             title: `${stock['01. symbol']} (Stock)`,
             url: `https://www.marketwatch.com/investing/stock/${stock['01. symbol'].toLowerCase()}/`,
             fields: [{
-              name: `Latest price from AlphaVantage as of ${dtString}.`,
-              value: '$' + stock['05. price'],
+              name: `Latest quote from AlphaVantage as of ${dtString}.`,
+              value: `Price: $${price} | 24h Change: ${change}`,
             }],
           }],
         };
@@ -80,13 +84,18 @@ client.on('messageCreate', async message => {
           timeStyle: 'short',
         });
         
+        const price = (Math.round(coin.quote.USD.price * 40) / 40).toString();
+        let change = coin.quote.USD.percent_change_24h;
+        if (change >= 0) change = `+${change}`;
+        change = `${change}%`.toString();
+        
         out = {
           embeds: [{
             title: `${coin.name} (Crypto)`,
             url: `https://coinmarketcap.com/currencies/${coin.slug}/`,
             fields: [{
-              name: `Latest price from CoinMarketCap as of ${dtString}.`,
-              value: '$' + (Math.round(coin.quote.USD.price * 40) / 40).toString(),
+              name: `Latest quote from CoinMarketCap as of ${dtString}.`,
+              value: `Price: $${price} | 24h Change: ${change}`,
             }],
           }],
         };
